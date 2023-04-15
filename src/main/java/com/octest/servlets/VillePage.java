@@ -1,7 +1,6 @@
 package com.octest.servlets;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -29,11 +28,11 @@ public class VillePage extends HttpServlet {
 			throws ServletException, IOException {
 		this.villeCode = request.getParameter("ville");
 
-		List<String[]> infosVille = villeDao.getData(this.villeCode);
+		String[] infosVille = villeDao.getData(this.villeCode).get(0);
 		
-		String[] meteo = villeDao.getMeteo(infosVille.get(0)[4], infosVille.get(0)[5]);
+		String[] meteo = villeDao.getMeteo(infosVille[4], infosVille[5]);
 		
-		request.setAttribute("ville", infosVille.get(0));
+		request.setAttribute("ville", infosVille);
 		request.setAttribute("meteo", meteo);
 		
 		this.getServletContext().getRequestDispatcher("/WEB-INF/ville.jsp").forward(request, response);
