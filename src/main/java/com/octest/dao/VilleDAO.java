@@ -7,7 +7,7 @@ public interface VilleDAO {
 
 	public double getDistanceVille(String codeCommune1, String codeCommune2);
 
-	public String[] getData(String villeCode);
+	public List<String[]> getData(String villeCode);
 
 	public void putData(String nomVille, String codeCommunal, String codePostal, String ligne5, String latitude,
 			String longitude);

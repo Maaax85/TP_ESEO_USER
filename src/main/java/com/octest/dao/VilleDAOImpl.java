@@ -34,6 +34,15 @@ public class VilleDAOImpl implements VilleDAO {
 
 	public List<String[]> getAllData() {
 		String urlString = "http://localhost:8181/getVille/?codePostal";
+		return this.getApiData(urlString);
+	}
+	
+	public List<String[]> getData(String villeCode) {
+		String urlString = "http://localhost:8181/getVille/?codeCommunal=" + villeCode;
+		return this.getApiData(urlString);
+	}
+	
+	private List<String[]> getApiData(String urlString) {
 		List<String[]> villeDataList = new ArrayList<>();
 		try {
 			URL url = new URL(urlString);
@@ -66,38 +75,6 @@ public class VilleDAOImpl implements VilleDAO {
 			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 		return villeDataList;
-	}
-
-	public String[] getData(String villeCode) {
-		String urlString = "http://localhost:8181/getVille/?codeCommunal=" + villeCode;
-		String[] villeData = new String[7];
-		try {
-			URL url = new URL(urlString);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty(ACCEPT_PARAMETER, APP_JSON_PARAMETER);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String line;
-			StringBuilder stringBuilder = new StringBuilder();
-			while ((line = reader.readLine()) != null) {
-				stringBuilder.append(line);
-			}
-			reader.close();
-			connection.disconnect();
-			String json = stringBuilder.toString();
-			JSONArray jsonArray = new JSONArray(json);
-			JSONObject jsonObject = jsonArray.getJSONObject(0);
-			villeData[0] = jsonObject.getString(NOM_COMMUNE_PARAMETER);
-			villeData[1] = jsonObject.getString(CODE_COMMUNE_PARAMETER);
-			villeData[2] = jsonObject.getString(CODE_POSTAL_PARAMETER);
-			villeData[3] = jsonObject.getString(LIGNE_PARAMETER);
-			villeData[4] = jsonObject.getString(LATITUDE_PARAMETER);
-			villeData[5] = jsonObject.getString(LONGITUDE_PARAMETER);
-			villeData[6] = "" + jsonObject.getInt(FLAG_PARAMETER);
-		} catch (IOException | JSONException e) {
-			LOGGER.error(ERROR_SQL_STRING, e);
-		}
-		return villeData;
 	}
 
 	public static final double R = 6371; // Rayon de la Terre en km
@@ -152,84 +129,37 @@ public class VilleDAOImpl implements VilleDAO {
 
 		String jsonStr = villeJson.toString();
 
-		URL url;
-		try {
-			url = new URL(urlString);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("PUT");
-			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
-			conn.setDoOutput(true);
-
-			OutputStream os = conn.getOutputStream();
-			os.write(jsonStr.getBytes());
-			os.flush();
-			os.close();
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-			System.out.println(response.toString());
-		} catch (IOException e) {
-			LOGGER.error(ERROR_SQL_STRING, e);
-		}
+		this.sendJsonObject(urlString, "PUT", jsonStr);
+	}
+	
+	public void deleteData(String villeCode) {
+		String urlString = "http://localhost:8181/deleteVille";
+		this.deleteInhibData(urlString, villeCode, "DELETE");
 	}
 
 	public void inhibData(String villeCode) {
 		String urlString = "http://localhost:8181/flagVille";
-
-		JSONObject villeJson = new JSONObject();
-
-		String[] ville = this.getData(villeCode);
-		villeJson.put(NOM_COMMUNE_PARAMETER, ville[0]);
-		villeJson.put(CODE_COMMUNE_PARAMETER, villeCode);
-
-		String jsonStr = villeJson.toString();
-
-		URL url;
-		try {
-			url = new URL(urlString);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("PUT");
-			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
-			conn.setDoOutput(true);
-
-			OutputStream os = conn.getOutputStream();
-			os.write(jsonStr.getBytes());
-			os.flush();
-			os.close();
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-		} catch (IOException e) {
-			LOGGER.error(ERROR_SQL_STRING, e);
-		}
+		this.deleteInhibData(urlString, villeCode, "PUT");
 	}
 
-	public void deleteData(String villeCode) {
-		String urlString = "http://localhost:8181/deleteVille";
-
+	private void deleteInhibData(String urlString, String villeCode, String type) {
 		JSONObject villeJson = new JSONObject();
 
-		String[] ville = this.getData(villeCode);
-		villeJson.put(NOM_COMMUNE_PARAMETER, ville[0]);
+		List<String[]> ville = this.getData(villeCode);
+		villeJson.put(NOM_COMMUNE_PARAMETER, ville.get(0)[0]);
 		villeJson.put(CODE_COMMUNE_PARAMETER, villeCode);
 
 		String jsonStr = villeJson.toString();
 
+		this.sendJsonObject(urlString, type, jsonStr);
+	}
+	
+	private void sendJsonObject(String urlString, String type, String jsonStr) {
 		URL url;
 		try {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("DELETE");
+			conn.setRequestMethod(type);
 			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 

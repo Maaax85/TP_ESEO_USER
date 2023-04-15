@@ -154,10 +154,10 @@ p {
 
 	</div>
 	
-	<p>
+	<h2>
 		<a href="${pageContext.request.contextPath}/Primary">Retour à la
 			liste des villes</a>
-	</p>
+	</h2>
 
 </body>
 
