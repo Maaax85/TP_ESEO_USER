@@ -1,7 +1,7 @@
 package com.octest.servlets;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.octest.dao.DaoFactory;
 import com.octest.dao.VilleDAO;
+import com.octest.dao.VilleDAOImpl;
 
 @WebServlet("/Secondary")
 @MultipartConfig
@@ -21,14 +21,13 @@ public class SecondaryPage extends HttpServlet {
     VilleDAO villeDao;
 
     public void init() throws ServletException {
-        DaoFactory daoFactory = DaoFactory.getInstance();
-        villeDao = daoFactory.getVilleDAO();
+        villeDao = new VilleDAOImpl();
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     	
-    	ArrayList<String[]> allData = villeDao.getAllData();
+    	List<String[]> allData = villeDao.getAllData();
     	
         request.setAttribute("allData", allData);
         this.getServletContext().getRequestDispatcher("/WEB-INF/secondaryJ.jsp").forward(request, response);

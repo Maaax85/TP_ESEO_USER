@@ -1,9 +1,9 @@
 package com.octest.dao;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface VilleDAO {
-	public ArrayList<String[]> getAllData();
+	public List<String[]> getAllData();
 
 	public double getDistanceVille(String codeCommune1, String codeCommune2);
 

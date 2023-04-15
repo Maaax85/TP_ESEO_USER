@@ -7,27 +7,38 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class VilleDAOImpl implements VilleDAO {
+	
+	public static final String APP_JSON_PARAMETER = "application/json";
+	public static final String ACCEPT_PARAMETER = "Accept";
+	
+	public static final String NOM_COMMUNE_PARAMETER = "nomCommune";
+	public static final String CODE_COMMUNE_PARAMETER = "codeCommune";
+	public static final String CODE_POSTAL_PARAMETER = "codePostal";
+	public static final String LIGNE_PARAMETER = "ligne";
+	public static final String LATITUDE_PARAMETER = "latitude";
+	public static final String LONGITUDE_PARAMETER = "longitude";
+	public static final String FLAG_PARAMETER = "flag";
+	
+	private static final String ERROR_SQL_STRING = "An SQL exception occurred";
+	private static final Logger LOGGER = LoggerFactory.getLogger(VilleDAOImpl.class);
 
-	DaoFactory daoFactory;
-
-	public VilleDAOImpl(DaoFactory daoFactory) {
-		this.daoFactory = daoFactory;
-	}
-
-	public ArrayList<String[]> getAllData() {
+	public List<String[]> getAllData() {
 		String urlString = "http://localhost:8181/getVille/?codePostal";
-		ArrayList<String[]> villeDataList = new ArrayList<String[]>();
+		List<String[]> villeDataList = new ArrayList<String[]>();
 		try {
 			URL url = new URL(urlString);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/json");
+			connection.setRequestProperty(ACCEPT_PARAMETER, APP_JSON_PARAMETER);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String line;
 			StringBuilder stringBuilder = new StringBuilder();
@@ -40,18 +51,18 @@ public class VilleDAOImpl implements VilleDAO {
 			JSONArray jsonArray = new JSONArray(json);
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject jsonObject = jsonArray.getJSONObject(i);
-				String nomCommune = jsonObject.getString("nomCommune");
-				String codeCommune = jsonObject.getString("codeCommune");
-				String codePostal = jsonObject.getString("codePostal");
-				String ligne = jsonObject.getString("ligne");
-				String latitude = jsonObject.getString("latitude");
-				String longitude = jsonObject.getString("longitude");
-				String flag = "" + jsonObject.getInt("flag");
+				String nomCommune = jsonObject.getString(NOM_COMMUNE_PARAMETER);
+				String codeCommune = jsonObject.getString(CODE_COMMUNE_PARAMETER);
+				String codePostal = jsonObject.getString(CODE_POSTAL_PARAMETER);
+				String ligne = jsonObject.getString(LIGNE_PARAMETER);
+				String latitude = jsonObject.getString(LATITUDE_PARAMETER);
+				String longitude = jsonObject.getString(LONGITUDE_PARAMETER);
+				String flag = "" + jsonObject.getInt(FLAG_PARAMETER);
 				String[] villeData = { nomCommune, codeCommune, codePostal, ligne, latitude, longitude, flag };
 				villeDataList.add(villeData);
 			}
 		} catch (IOException | JSONException e) {
-			e.printStackTrace();
+			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 		return villeDataList;
 	}
@@ -63,7 +74,7 @@ public class VilleDAOImpl implements VilleDAO {
 			URL url = new URL(urlString);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/json");
+			connection.setRequestProperty(ACCEPT_PARAMETER, APP_JSON_PARAMETER);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String line;
 			StringBuilder stringBuilder = new StringBuilder();
@@ -75,15 +86,15 @@ public class VilleDAOImpl implements VilleDAO {
 			String json = stringBuilder.toString();
 			JSONArray jsonArray = new JSONArray(json);
 			JSONObject jsonObject = jsonArray.getJSONObject(0);
-			villeData[0] = jsonObject.getString("nomCommune");
-			villeData[1] = jsonObject.getString("codeCommune");
-			villeData[2] = jsonObject.getString("codePostal");
-			villeData[3] = jsonObject.getString("ligne");
-			villeData[4] = jsonObject.getString("latitude");
-			villeData[5] = jsonObject.getString("longitude");
-			villeData[6] = "" + jsonObject.getInt("flag");
+			villeData[0] = jsonObject.getString(NOM_COMMUNE_PARAMETER);
+			villeData[1] = jsonObject.getString(CODE_COMMUNE_PARAMETER);
+			villeData[2] = jsonObject.getString(CODE_POSTAL_PARAMETER);
+			villeData[3] = jsonObject.getString(LIGNE_PARAMETER);
+			villeData[4] = jsonObject.getString(LATITUDE_PARAMETER);
+			villeData[5] = jsonObject.getString(LONGITUDE_PARAMETER);
+			villeData[6] = "" + jsonObject.getInt(FLAG_PARAMETER);
 		} catch (IOException | JSONException e) {
-			e.printStackTrace();
+			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 		return villeData;
 	}
@@ -104,7 +115,7 @@ public class VilleDAOImpl implements VilleDAO {
 	}
 
 	public double getDistanceVille(String codeCommune1, String codeCommune2) {
-		ArrayList<String[]> villes = this.getAllData();
+		List<String[]> villes = this.getAllData();
 		String[] ville1 = new String[6];
 		String[] ville2 = new String[6];
 
@@ -131,12 +142,12 @@ public class VilleDAOImpl implements VilleDAO {
 		String urlString = "http://localhost:8181/editVille";
 
 		JSONObject villeJson = new JSONObject();
-		villeJson.put("nomCommune", nomVille);
-		villeJson.put("codeCommune", codeCommunal);
-		villeJson.put("codePostal", codePostal);
-		villeJson.put("ligne", ligne5);
-		villeJson.put("latitude", latitude);
-		villeJson.put("longitude", longitude);
+		villeJson.put(NOM_COMMUNE_PARAMETER, nomVille);
+		villeJson.put(CODE_COMMUNE_PARAMETER, codeCommunal);
+		villeJson.put(CODE_POSTAL_PARAMETER, codePostal);
+		villeJson.put(LIGNE_PARAMETER, ligne5);
+		villeJson.put(LATITUDE_PARAMETER, latitude);
+		villeJson.put(LONGITUDE_PARAMETER, longitude);
 
 		String jsonStr = villeJson.toString();
 
@@ -145,7 +156,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("PUT");
-			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
@@ -162,7 +173,7 @@ public class VilleDAOImpl implements VilleDAO {
 			in.close();
 			System.out.println(response.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 	}
 
@@ -172,8 +183,8 @@ public class VilleDAOImpl implements VilleDAO {
 		JSONObject villeJson = new JSONObject();
 
 		String[] ville = this.getData(villeCode);
-		villeJson.put("nomCommune", ville[0]);
-		villeJson.put("codeCommune", villeCode);
+		villeJson.put(NOM_COMMUNE_PARAMETER, ville[0]);
+		villeJson.put(CODE_COMMUNE_PARAMETER, villeCode);
 
 		String jsonStr = villeJson.toString();
 
@@ -182,7 +193,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("PUT");
-			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
@@ -192,14 +203,13 @@ public class VilleDAOImpl implements VilleDAO {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String inputLine;
-			StringBuffer response = new StringBuffer();
+			StringBuilder response = new StringBuilder();
 			while ((inputLine = in.readLine()) != null) {
 				response.append(inputLine);
 			}
 			in.close();
-			System.out.println(response.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 	}
 
@@ -209,8 +219,8 @@ public class VilleDAOImpl implements VilleDAO {
 		JSONObject villeJson = new JSONObject();
 
 		String[] ville = this.getData(villeCode);
-		villeJson.put("nomCommune", ville[0]);
-		villeJson.put("codeCommune", villeCode);
+		villeJson.put(NOM_COMMUNE_PARAMETER, ville[0]);
+		villeJson.put(CODE_COMMUNE_PARAMETER, villeCode);
 
 		String jsonStr = villeJson.toString();
 
@@ -219,7 +229,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("DELETE");
-			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
@@ -229,14 +239,13 @@ public class VilleDAOImpl implements VilleDAO {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String inputLine;
-			StringBuffer response = new StringBuffer();
+			StringBuilder response = new StringBuilder();
 			while ((inputLine = in.readLine()) != null) {
 				response.append(inputLine);
 			}
 			in.close();
-			System.out.println(response.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(ERROR_SQL_STRING, e);
 		}
 	}
 
@@ -247,7 +256,7 @@ public class VilleDAOImpl implements VilleDAO {
 	        URL urlObj = new URL(url);
 	        HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
 	        connection.setRequestMethod("GET");
-	        connection.setRequestProperty("Accept", "application/json");
+	        connection.setRequestProperty(ACCEPT_PARAMETER, APP_JSON_PARAMETER);
 
 	        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 	        String inputLine;
@@ -273,7 +282,7 @@ public class VilleDAOImpl implements VilleDAO {
 	        meteoRet = meteo;
 
 	    } catch (IOException | JSONException e) {
-	        e.printStackTrace();
+	    	LOGGER.error(ERROR_SQL_STRING, e);
 	    }
 
 	    return meteoRet;

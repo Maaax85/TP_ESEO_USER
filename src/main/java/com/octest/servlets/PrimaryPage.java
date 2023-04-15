@@ -1,7 +1,6 @@
 package com.octest.servlets;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -11,8 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.octest.dao.DaoFactory;
 import com.octest.dao.VilleDAO;
+import com.octest.dao.VilleDAOImpl;
 
 @WebServlet("/Primary")
 @MultipartConfig
@@ -22,8 +21,7 @@ public class PrimaryPage extends HttpServlet {
 	VilleDAO villeDao;
 
 	public void init() throws ServletException {
-		DaoFactory daoFactory = DaoFactory.getInstance();
-		villeDao = daoFactory.getVilleDAO();
+		villeDao = new VilleDAOImpl();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -35,7 +33,7 @@ public class PrimaryPage extends HttpServlet {
 			page = Integer.parseInt(pageParam);
 		}
 
-		ArrayList<String[]> allData = villeDao.getAllData();
+		List<String[]> allData = villeDao.getAllData();
 
 		int totalPages = allData.size() / 50;
 		if (totalPages % 50 != 0) {

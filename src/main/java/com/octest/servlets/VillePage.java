@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.octest.dao.DaoFactory;
 import com.octest.dao.VilleDAO;
+import com.octest.dao.VilleDAOImpl;
 
 @WebServlet("/Ville")
 @MultipartConfig
@@ -21,8 +21,7 @@ public class VillePage extends HttpServlet {
 	String villeCode;
 
 	public void init() throws ServletException {
-		DaoFactory daoFactory = DaoFactory.getInstance();
-		villeDao = daoFactory.getVilleDAO();
+		villeDao = new VilleDAOImpl();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,9 +50,7 @@ public class VillePage extends HttpServlet {
 				String latitude = request.getParameter("latitude");
 				String longitude = request.getParameter("longitude");
 				String codeCommunal = this.villeCode;
-				
-				System.out.println(nomVille + " " + codePostal + " " + ligne5 + " " + latitude + " " + longitude + " " + codeCommunal);
-				
+								
 				this.villeDao.putData(nomVille, codeCommunal, codePostal, ligne5, latitude, longitude);
 				response.sendRedirect(request.getContextPath() + "/Ville?ville=" + this.villeCode);
             }
