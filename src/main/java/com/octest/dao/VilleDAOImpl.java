@@ -27,13 +27,14 @@ public class VilleDAOImpl implements VilleDAO {
 	public static final String LATITUDE_PARAMETER = "latitude";
 	public static final String LONGITUDE_PARAMETER = "longitude";
 	public static final String FLAG_PARAMETER = "flag";
+	public static final String CONTENT_PARAMETER = "Content-Type";
 	
 	private static final String ERROR_SQL_STRING = "An SQL exception occurred";
 	private static final Logger LOGGER = LoggerFactory.getLogger(VilleDAOImpl.class);
 
 	public List<String[]> getAllData() {
 		String urlString = "http://localhost:8181/getVille/?codePostal";
-		List<String[]> villeDataList = new ArrayList<String[]>();
+		List<String[]> villeDataList = new ArrayList<>();
 		try {
 			URL url = new URL(urlString);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -156,7 +157,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("PUT");
-			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
+			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
@@ -166,7 +167,7 @@ public class VilleDAOImpl implements VilleDAO {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String inputLine;
-			StringBuffer response = new StringBuffer();
+			StringBuilder response = new StringBuilder();
 			while ((inputLine = in.readLine()) != null) {
 				response.append(inputLine);
 			}
@@ -193,7 +194,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("PUT");
-			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
+			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
@@ -229,7 +230,7 @@ public class VilleDAOImpl implements VilleDAO {
 			url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("DELETE");
-			conn.setRequestProperty("Content-Type", APP_JSON_PARAMETER);
+			conn.setRequestProperty(CONTENT_PARAMETER, APP_JSON_PARAMETER);
 			conn.setDoOutput(true);
 
 			OutputStream os = conn.getOutputStream();
